@@ -1,6 +1,6 @@
-(defproject onyx-medium-name "0.7.0-SNAPSHOT"
-  :description "Onyx plugin for lazy-seq"
-  :url "FIX ME"
+(defproject onyx-seq "0.7.0.0"
+  :description "Onyx plugin for seq"
+  :url "https://github.com/onyx-platform/onyq-seq"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]

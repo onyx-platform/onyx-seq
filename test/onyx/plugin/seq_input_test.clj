@@ -1,10 +1,11 @@
-(ns onyx.plugin.lazy-seq-input-test
+(ns onyx.plugin.seq-input-test
   (:require [clojure.core.async :refer [chan >!! <!! close! sliding-buffer]]
             [clojure.test :refer [deftest is testing]]
             [taoensso.timbre :refer [info]]
             [onyx.plugin.core-async :refer [take-segments!]]
-            [onyx.plugin.lazy-seq-input]
-            [onyx.api]))
+            [onyx.plugin.seq-input]
+            [onyx.api])
+  (:import [java.io BufferedReader FileReader]))
 
 (def id (java.util.UUID/randomUUID))
 
@@ -20,7 +21,7 @@
    :onyx.peer/job-scheduler :onyx.job-scheduler/greedy
    :onyx.messaging.aeron/embedded-driver? true
    :onyx.messaging/allow-short-circuit? false
-   :onyx.messaging/impl :aeron
+   :onyx.messaging/impl :core.async
    :onyx.messaging/peer-port-range [40200 40260]
    :onyx.messaging/bind-addr "localhost"})
 
@@ -34,9 +35,10 @@
 
 (def catalog
   [{:onyx/name :in
-    :onyx/plugin :onyx.plugin.lazy-seq-input/input
+    :onyx/plugin :onyx.plugin.seq-input/input
     :onyx/type :input
-    :onyx/medium :lazy-seq
+    :onyx/medium :seq
+    :seq/elements-per-segment 2
     :onyx/batch-size batch-size
     :onyx/max-peers 1
     :onyx/doc "Documentation for your datasource"}
@@ -51,36 +53,36 @@
 
 (def workflow [[:in :out]])
 
-(def in-datasource (atom (list)))
-
 (def out-chan (chan (sliding-buffer (inc n-messages))))
 
-(defn inject-in-datasource [event lifecycle]
-  {:lazy-seq/example-datasource in-datasource})
+(defn inject-in-reader [event lifecycle]
+  (let [rdr (FileReader. (:buffered-reader/filename lifecycle))] 
+    {:seq/rdr rdr
+     :seq/seq (line-seq (BufferedReader. rdr))}))
+
+(defn close-reader [event lifecycle]
+  (.close (:seq/rdr event)))
 
 (defn inject-out-ch [event lifecycle]
   {:core.async/chan out-chan})
 
 (def in-calls
-  {:lifecycle/before-task-start inject-in-datasource})
+  {:lifecycle/before-task-start inject-in-reader
+   :lifecycle/after-task-stop close-reader})
 
 (def out-calls
   {:lifecycle/before-task-start inject-out-ch})
 
 (def lifecycles
   [{:lifecycle/task :in
+    :buffered-reader/filename "resources/lines.txt"
     :lifecycle/calls ::in-calls}
    {:lifecycle/task :in
-    :lifecycle/calls :onyx.plugin.lazy-seq-input/reader-calls}
+    :lifecycle/calls :onyx.plugin.seq-input/reader-calls}
    {:lifecycle/task :out
     :lifecycle/calls ::out-calls}
    {:lifecycle/task :out
     :lifecycle/calls :onyx.plugin.core-async/writer-calls}])
-
-(doseq [n (range n-messages)]
-  (swap! in-datasource conj {:n n}))
-
-(swap! in-datasource conj :done)
 
 (def v-peers (onyx.api/start-peers 2 peer-group))
 
@@ -95,10 +97,13 @@
 
 (deftest testing-output
   (testing "Input is received at output"
-    (let [expected (set (map (fn [x] {:n x}) (range n-messages)))]
+    (let [expected #{{:elements ["line1" "line2"]}
+                     {:elements ["line3" "line4"]}
+                     {:elements ["line5" "line6"]}
+                     {:elements ["line7" "line8"]}
+                     {:elements ["line9"]}}]
     (is (= expected (set (butlast results))))
     (is (= :done (last results))))))
-
 
 (doseq [v-peer v-peers]
   (onyx.api/shutdown-peer v-peer))

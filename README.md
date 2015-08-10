@@ -1,19 +1,17 @@
-## onyx-lazy-seq
+## onyx-seq
 
-Onyx plugin for lazy-seq.
+Onyx plugin for reading from a seq.
 
 #### Installation
 
 In your project file:
 
 ```clojure
-[onyx-lazy-seq "0.6.0"]
+[onyx-seq "0.7.0.0"]
 ```
 
-In your peer boot-up namespace:
-
 ```clojure
-(:require [onyx.plugin.lazy-seq])
+(:require [onyx.plugin.seq])
 ```
 
 #### Functions
@@ -24,25 +22,52 @@ Catalog entry:
 
 ```clojure
 {:onyx/name :entry-name
- :onyx/ident :lazy-seq/task
+ :onyx/plugin :onyx.plugin.seq-input/input
  :onyx/type :input
- :onyx/medium :lazy-seq
+ :onyx/medium :seq
+ :seq/elements-per-segment 2
  :onyx/batch-size batch-size
- :onyx/doc "Reads segments from lazy-seq"}
+ :onyx/max-peers 1
+ :onyx/doc "Reads segments from seq"}
 ```
 
 Lifecycle entry:
 
 ```clojure
-[{:lifecycle/task :your-task-name
-  :lifecycle/calls :onyx.plugin.lazy-seq/lifecycle-calls}]
+[{:lifecycle/task :in
+  :lifecycle/calls :onyx.plugin.seq-input/reader-calls}]
+```
+
+##### Example Use - Buffered Line Reader
+
+```clojure
+(defn inject-in-reader [event lifecycle]
+  (let [rdr (FileReader. (:buffered-reader/filename lifecycle))] 
+    {:seq/rdr rdr
+     :seq/seq (line-seq (BufferedReader. rdr))}))
+
+(defn close-reader [event lifecycle]
+  (.close (:seq/rdr event)))
+
+(def in-calls
+  {:lifecycle/before-task-start inject-in-reader
+   :lifecycle/after-task-stop close-reader})
+
+;; lifecycles
+
+(def lifecycles
+  [{:lifecycle/task :in
+    :buffered-reader/filename "resources/lines.txt"
+    :lifecycle/calls ::in-calls}
+   {:lifecycle/task :in
+    :lifecycle/calls :onyx.plugin.seq-input/reader-calls}])
 ```
 
 #### Attributes
 
-|key                           | type      | description
+| key                          | type      | description
 |------------------------------|-----------|------------
-|`:lazy-seq/attr`            | `string`  | Description here.
+|`:seq/elements-per-segment`   | `integer` | The number of elements to compress into a single segment
 
 #### Contributing
 
@@ -50,6 +75,6 @@ Pull requests into the master branch are welcomed.
 
 #### License
 
-Copyright © 2015 FIX ME
+Copyright © 2015 Distributed Masonry LLC
 
 Distributed under the Eclipse Public License, the same as Clojure.
