@@ -1,0 +1,8 @@
+test:
+  override:
+    - lein test:
+        timeout: 240 
+
+machine:
+  java:
+    version: oraclejdk8
