@@ -4,6 +4,10 @@ Onyx plugin for reading from a seq. The seq will be read from in way that is
 approriate for use with lazy-seqs. Therefore, this plugin can be useful for use
 with datomic.api/datoms calls, slow lazy calculations, line-seq / buffered reading, etc.
 
+#### Build Status
+
+[![Circle CI](https://circleci.com/gh/onyx-platform/onyx-seq.svg?style=svg)](https://circleci.com/gh/onyx-platform/onyx-seq)
+
 #### Installation
 
 In your project file:
