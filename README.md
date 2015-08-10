@@ -1,6 +1,8 @@
 ## onyx-seq
 
-Onyx plugin for reading from a seq.
+Onyx plugin for reading from a seq. The seq will be read from in way that is
+approriate for use with lazy-seqs. Therefore, this plugin can be useful for use
+with datomic.api/datoms calls, slow lazy calculations, line-seq / buffered reading, etc.
 
 #### Installation
 
