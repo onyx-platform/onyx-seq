@@ -21,7 +21,8 @@
       (throw (ex-info ":seq/elements-per-segment missing from task-map." task-map))))
 
 (defn close-read-seq-resources 
-  [{:keys [seq/producer-ch] :as event} lifecycle]
+  [{:keys [seq/producer-ch seq/commit-ch] :as event} lifecycle]
+  (close! commit-ch)
   (close! producer-ch))
 
 (defn start-commit-loop! [commit-ch log task-id]
@@ -42,7 +43,8 @@
       (let [ch (:read-ch pipeline)
             start-index (:chunk-index content)
             num-ignored (* start-index elements-per-segment)
-            commit-loop-ch (start-commit-loop! (:commit-ch pipeline) log task-id)
+            commit-loop-ch (when (false? (:seq/checkpoint? task-map)) 
+                             (start-commit-loop! (:commit-ch pipeline) log task-id))
             producer-ch (thread
                           (try
                             (loop [chunk-index (inc start-index)
@@ -58,6 +60,7 @@
                               (fatal e))))]
         
         {:seq/read-ch ch
+         :seq/commit-ch (:commit-ch pipeline)
          :seq/producer-ch producer-ch
          :seq/drained? (:drained pipeline)
          :seq/top-chunk-index (:top-chunk-index pipeline)

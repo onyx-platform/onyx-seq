@@ -39,6 +39,7 @@
     :onyx/type :input
     :onyx/medium :seq
     :seq/elements-per-segment 2
+    :seq/checkpoint? true
     :onyx/batch-size batch-size
     :onyx/max-peers 1
     :onyx/doc "Documentation for your datasource"}

@@ -26,6 +26,7 @@ Catalog entry:
  :onyx/type :input
  :onyx/medium :seq
  :seq/elements-per-segment 2
+ :seq/checkpoint? true
  :onyx/batch-size batch-size
  :onyx/max-peers 1
  :onyx/doc "Reads segments from seq"}
@@ -37,6 +38,14 @@ Lifecycle entry:
 [{:lifecycle/task :in
   :lifecycle/calls :onyx.plugin.seq-input/reader-calls}]
 ```
+
+##### Checkpointing
+
+onyx-seq will checkpoint the state of the read results. In the case of a
+virtual peer crash, the new virtual peer will drop from the seq until it has
+reached the first non fully acked segment. In order for this process to work,
+the seq that is read from must be reproducible on restart. If it is not, please
+disable checkpointing via :seq/checkpoint?.
 
 ##### Example Use - Buffered Line Reader
 
