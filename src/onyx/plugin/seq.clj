@@ -1,4 +1,4 @@
-(ns onyx.plugin.seq-input
+(ns onyx.plugin.seq
   (:require [onyx.peer.function :as function]
             [onyx.peer.pipeline-extensions :as p-ext]
             [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! 
@@ -21,7 +21,8 @@
       (throw (ex-info ":seq/elements-per-segment missing from task-map." task-map))))
 
 (defn close-read-seq-resources 
-  [{:keys [seq/producer-ch seq/commit-ch] :as event} lifecycle]
+  [{:keys [seq/producer-ch seq/commit-ch seq/read-ch] :as event} lifecycle]
+  (close! read-ch)
   (close! commit-ch)
   (close! producer-ch))
 
@@ -50,11 +51,11 @@
                             (loop [chunk-index (inc start-index)
                                    seq-seq (seq (drop num-ignored (:seq/seq event)))]
                               (when seq-seq 
-                                (>!! ch (assoc (t/input (java.util.UUID/randomUUID)
-                                                        {:elements (take elements-per-segment seq-seq)})
-                                               :chunk-index chunk-index))
-                                (recur (inc chunk-index) 
-                                       (seq (drop elements-per-segment seq-seq)))))
+                                (if (>!! ch (assoc (t/input (java.util.UUID/randomUUID)
+                                                            {:elements (take elements-per-segment seq-seq)})
+                                                   :chunk-index chunk-index))
+                                  (recur (inc chunk-index) 
+                                         (seq (drop elements-per-segment seq-seq))))))
                             (>!! ch (t/input (java.util.UUID/randomUUID) :done))
                             (catch Exception e
                               (fatal e))))]

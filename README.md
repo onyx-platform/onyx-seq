@@ -28,7 +28,7 @@ Catalog entry:
 
 ```clojure
 {:onyx/name :entry-name
- :onyx/plugin :onyx.plugin.seq-input/input
+ :onyx/plugin :onyx.plugin.seq/input
  :onyx/type :input
  :onyx/medium :seq
  :seq/elements-per-segment 2
@@ -42,7 +42,7 @@ Lifecycle entry:
 
 ```clojure
 [{:lifecycle/task :in
-  :lifecycle/calls :onyx.plugin.seq-input/reader-calls}]
+  :lifecycle/calls :onyx.plugin.seq/reader-calls}]
 ```
 
 ##### Checkpointing
@@ -75,7 +75,7 @@ disable checkpointing via :seq/checkpoint?.
     :buffered-reader/filename "resources/lines.txt"
     :lifecycle/calls ::in-calls}
    {:lifecycle/task :in
-    :lifecycle/calls :onyx.plugin.seq-input/reader-calls}])
+    :lifecycle/calls :onyx.plugin.seq/reader-calls}])
 ```
 
 #### Attributes

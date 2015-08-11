@@ -1,9 +1,9 @@
-(ns onyx.plugin.seq-input-test
+(ns onyx.plugin.seq-test
   (:require [clojure.core.async :refer [chan >!! <!! close! sliding-buffer]]
             [clojure.test :refer [deftest is testing]]
             [taoensso.timbre :refer [info]]
             [onyx.plugin.core-async :refer [take-segments!]]
-            [onyx.plugin.seq-input]
+            [onyx.plugin.seq]
             [onyx.api])
   (:import [java.io BufferedReader FileReader]))
 
@@ -35,7 +35,7 @@
 
 (def catalog
   [{:onyx/name :in
-    :onyx/plugin :onyx.plugin.seq-input/input
+    :onyx/plugin :onyx.plugin.seq/input
     :onyx/type :input
     :onyx/medium :seq
     :seq/elements-per-segment 2
@@ -79,7 +79,7 @@
     :buffered-reader/filename "resources/lines.txt"
     :lifecycle/calls ::in-calls}
    {:lifecycle/task :in
-    :lifecycle/calls :onyx.plugin.seq-input/reader-calls}
+    :lifecycle/calls :onyx.plugin.seq/reader-calls}
    {:lifecycle/task :out
     :lifecycle/calls ::out-calls}
    {:lifecycle/task :out
