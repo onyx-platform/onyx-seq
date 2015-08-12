@@ -2,7 +2,7 @@
   (:require [onyx.peer.function :as function]
             [onyx.peer.pipeline-extensions :as p-ext]
             [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! 
-                                        go-loop dropping-buffer]]
+                                        go-loop sliding-buffer]]
             [onyx.static.default-vals :refer [defaults arg-or-default]]
             [onyx.extensions :as extensions]
             [onyx.types :as t]
@@ -142,7 +142,7 @@
         top-acked-chunk-index (atom -1)
         pending-chunk-indices (atom #{})
         read-ch (chan (or (:seq/read-buffer task-map) 1000))
-        commit-ch (chan (dropping-buffer 1))] 
+        commit-ch (chan (sliding-buffer 1))] 
     (->SeqInput log task-id max-pending batch-size batch-timeout pending-messages drained? 
                 top-chunk-index top-acked-chunk-index pending-chunk-indices
                 read-ch commit-ch)))
