@@ -59,6 +59,7 @@
                             (>!! ch (t/input (java.util.UUID/randomUUID) :done))
                             (catch Exception e
                               (fatal e))))]
+        (info "ADDING PENDING " (:pending-messages pipeline))
         
         {:seq/read-ch ch
          :seq/commit-ch (:commit-ch pipeline)
