@@ -21,7 +21,7 @@
    :onyx.peer/job-scheduler :onyx.job-scheduler/greedy
    :onyx.messaging.aeron/embedded-driver? true
    :onyx.messaging/allow-short-circuit? false
-   :onyx.messaging/impl :core.async
+   :onyx.messaging/impl :aeron
    :onyx.messaging/peer-port-range [40200 40260]
    :onyx.messaging/bind-addr "localhost"})
 
