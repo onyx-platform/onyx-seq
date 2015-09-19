@@ -1,9 +1,8 @@
-(defproject org.onyxplatform/onyx-seq "0.7.0.3"
+(defproject org.onyxplatform/onyx-seq "0.7.4-SNAPSHOT"
   :description "Onyx plugin for seq"
   :url "https://github.com/onyx-platform/onyq-seq"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.onyxplatform/onyx "0.7.0"]]
-  :profiles {:dev {:dependencies []
-                   :plugins []}})
+                 ^{:voom {:repo "git@github.com:onyx-platform/onyx.git" :branch "master"}}
+                 [org.onyxplatform/onyx "0.7.4-20150916_205458-gf33df5b"]])
