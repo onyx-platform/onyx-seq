@@ -13,7 +13,7 @@ with datomic.api/datoms calls, slow lazy calculations, line-seq / buffered readi
 In your project file:
 
 ```clojure
-[org.onyxplatform/onyx-seq "0.7.5"]
+[org.onyxplatform/onyx-seq "0.7.12-SNAPSHOT"]
 ```
 
 ```clojure
