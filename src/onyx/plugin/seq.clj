@@ -4,6 +4,7 @@
             [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! 
                                         go-loop sliding-buffer]]
             [onyx.static.default-vals :refer [defaults arg-or-default]]
+            [onyx.static.uuid :refer [random-uuid]]
             [onyx.extensions :as extensions]
             [onyx.types :as t]
             [taoensso.timbre :refer [debug info fatal] :as timbre]))
@@ -51,12 +52,12 @@
                             (loop [chunk-index (inc start-index)
                                    seq-seq (seq (drop num-ignored (:seq/seq event)))]
                               (when seq-seq 
-                                (if (>!! ch (assoc (t/input (java.util.UUID/randomUUID)
+                                (if (>!! ch (assoc (t/input (random-uuid)
                                                             {:elements (take elements-per-segment seq-seq)})
                                                    :chunk-index chunk-index))
                                   (recur (inc chunk-index) 
                                          (seq (drop elements-per-segment seq-seq))))))
-                            (>!! ch (t/input (java.util.UUID/randomUUID) :done))
+                            (>!! ch (t/input (random-uuid) :done))
                             (catch Exception e
                               (fatal e))))]
         (info "ADDING PENDING " (:pending-messages pipeline))
@@ -122,7 +123,7 @@
     [_ event segment-id]
     (when-let [msg (get @pending-messages segment-id)]
       (swap! pending-messages dissoc segment-id) 
-      (>!! read-ch (assoc msg :id (java.util.UUID/randomUUID)))))
+      (>!! read-ch (assoc msg :id (random-uuid)))))
 
   (pending?
     [_ _ segment-id]
