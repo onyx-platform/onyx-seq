@@ -1,4 +1,4 @@
-(defproject org.onyxplatform/onyx-seq "0.8.0.0-alpha5"
+(defproject org.onyxplatform/onyx-seq "0.8.1.0-alpha6"
   :description "Onyx plugin for seq"
   :url "https://github.com/onyx-platform/onyq-seq"
   :license {:name "Eclipse Public License"
