@@ -27,7 +27,7 @@ In your project file:
 Catalog entry:
 
 ```clojure
-{:onyx/name :entry-name
+{:onyx/name :in
  :onyx/plugin :onyx.plugin.seq/input
  :onyx/type :input
  :onyx/medium :seq
