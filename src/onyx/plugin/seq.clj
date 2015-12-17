@@ -17,10 +17,6 @@
        (= (count batch) 1)
        (= (:message (first batch)) :done)))
 
-(defn safe-elements-per-segment [task-map]
-  (or (:seq/elements-per-segment task-map)
-      (throw (ex-info ":seq/elements-per-segment missing from task-map." task-map))))
-
 (defn close-read-seq-resources 
   [{:keys [seq/producer-ch seq/commit-ch seq/read-ch] :as event} lifecycle]
   (close! read-ch)
@@ -37,31 +33,31 @@
   [{:keys [onyx.core/task-map onyx.core/log onyx.core/task-id onyx.core/pipeline] :as event} lifecycle]
   (when-not (= 1 (:onyx/max-peers task-map))
     (throw (ex-info "read seq tasks must set :onyx/max-peers 1" task-map)))
+
+  (when (:seq/elements-per-segment task-map)
+    (throw (ex-info "Elements per segment has been deprecated. Please return a seq of maps and remove :seq/elements-per-segment from your task map." task-map)))
+
   (let [_ (extensions/write-chunk log :chunk {:chunk-index -1 :status :incomplete} task-id)
-        content (extensions/read-chunk log :chunk task-id)
-        elements-per-segment (safe-elements-per-segment task-map)]
+        content (extensions/read-chunk log :chunk task-id)]
     (if (= :complete (:status content))
       (throw (Exception. "Restarted task and it was already complete. This is currently unhandled."))
       (let [ch (:read-ch pipeline)
             start-index (:chunk-index content)
-            num-ignored (* start-index elements-per-segment)
             commit-loop-ch (when (false? (:seq/checkpoint? task-map)) 
                              (start-commit-loop! (:commit-ch pipeline) log task-id))
             producer-ch (thread
                           (try
                             (loop [chunk-index (inc start-index)
-                                   seq-seq (seq (drop num-ignored (:seq/seq event)))]
+                                   seq-seq (seq (drop start-index (:seq/seq event)))]
                               (when seq-seq 
                                 (if (>!! ch (assoc (t/input (random-uuid)
-                                                            {:elements (take elements-per-segment seq-seq)})
+                                                            (first seq-seq))
                                                    :chunk-index chunk-index))
                                   (recur (inc chunk-index) 
-                                         (seq (drop elements-per-segment seq-seq))))))
+                                         (seq (rest seq-seq))))))
                             (>!! ch (t/input (random-uuid) :done))
                             (catch Exception e
                               (fatal e))))]
-        (info "ADDING PENDING " (:pending-messages pipeline))
-        
         {:seq/read-ch ch
          :seq/commit-ch (:commit-ch pipeline)
          :seq/producer-ch producer-ch
