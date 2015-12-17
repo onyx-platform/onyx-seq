@@ -13,7 +13,7 @@ with datomic.api/datoms calls, slow lazy calculations, line-seq / buffered readi
 In your project file:
 
 ```clojure
-[org.onyxplatform/onyx-seq "0.8.3.1-SNAPSHOT"]
+[org.onyxplatform/onyx-seq "0.8.3.2-SNAPSHOT"]
 ```
 
 ```clojure
@@ -31,7 +31,6 @@ Catalog entry:
  :onyx/plugin :onyx.plugin.seq/input
  :onyx/type :input
  :onyx/medium :seq
- :seq/elements-per-segment 2
  :seq/checkpoint? true
  :onyx/batch-size batch-size
  :onyx/max-peers 1
@@ -44,6 +43,12 @@ Lifecycle entry:
 [{:lifecycle/task :in
   :lifecycle/calls :onyx.plugin.seq/reader-calls}]
 ```
+
+Ensure that the elements of your seq are maps. If they are not, in may help to
+bundle them into maps via a map over the seq returned before returning it from
+the lifecycle.
+
+e.g. `(map (fn [a] {:val a}) ["A" "B" "C"])`
 
 ##### Checkpointing
 

@@ -38,7 +38,6 @@
     :onyx/plugin :onyx.plugin.seq/input
     :onyx/type :input
     :onyx/medium :seq
-    :seq/elements-per-segment 2
     :seq/checkpoint? true
     :onyx/batch-size batch-size
     :onyx/max-peers 1
@@ -59,7 +58,7 @@
 (defn inject-in-reader [event lifecycle]
   (let [rdr (FileReader. (:buffered-reader/filename lifecycle))] 
     {:seq/rdr rdr
-     :seq/seq (line-seq (BufferedReader. rdr))}))
+     :seq/seq (map (partial hash-map :val) (line-seq (BufferedReader. rdr)))}))
 
 (defn close-reader [event lifecycle]
   (.close (:seq/rdr event)))
@@ -98,11 +97,7 @@
 
 (deftest testing-output
   (testing "Input is received at output"
-    (let [expected #{{:elements ["line1" "line2"]}
-                     {:elements ["line3" "line4"]}
-                     {:elements ["line5" "line6"]}
-                     {:elements ["line7" "line8"]}
-                     {:elements ["line9"]}}]
+    (let [expected #{{:val "line1"} {:val "line2"} {:val "line3"} {:val "line4"} {:val "line5"} {:val "line6"} {:val "line7"} {:val "line8"} {:val "line9"}}]
     (is (= expected (set (butlast results))))
     (is (= :done (last results))))))
 
