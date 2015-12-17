@@ -9,9 +9,6 @@
             [onyx.types :as t]
             [taoensso.timbre :refer [debug info fatal] :as timbre]))
 
-(def seq-defaults
-  {:seq/commit-ch-size 1000})
-
 (defn input-drained? [pending-messages batch]
   (and (= 1 (count @pending-messages))
        (= (count batch) 1)
