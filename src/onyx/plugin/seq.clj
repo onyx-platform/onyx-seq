@@ -26,6 +26,10 @@
              (extensions/force-write-chunk log :chunk content task-id)
              (recur))))
 
+(defn feedback-producer-exception! [e]
+  (when (instance? java.lang.Throwable e)
+    (throw e)))
+
 (defn inject-read-seq-resources
   [{:keys [onyx.core/task-map onyx.core/log onyx.core/task-id onyx.core/pipeline] :as event} lifecycle]
   (when-not (= 1 (:onyx/max-peers task-map))
@@ -54,7 +58,8 @@
                                          (seq (rest seq-seq))))))
                             (>!! ch (t/input (random-uuid) :done))
                             (catch Exception e
-                              (fatal e))))]
+                              ;; Pass exception back to the main thread
+                              (>!! ch e))))]
         {:seq/read-ch ch
          :seq/commit-ch (:commit-ch pipeline)
          :seq/producer-ch producer-ch
@@ -90,6 +95,7 @@
           batch (->> (range max-segments)
                      (keep (fn [_] (first (alts!! [read-ch timeout-ch] :priority true)))))]
       (doseq [m batch]
+        (feedback-producer-exception! m)
         (when-let [chunk-index (:chunk-index m)] 
           (swap! top-chunk-index max chunk-index)
           (swap! pending-chunk-indices conj chunk-index))
