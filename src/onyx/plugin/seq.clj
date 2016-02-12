@@ -1,8 +1,7 @@
 (ns onyx.plugin.seq
   (:require [onyx.peer.function :as function]
             [onyx.peer.pipeline-extensions :as p-ext]
-            [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! 
-                                        go-loop sliding-buffer]]
+            [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! poll!  go-loop sliding-buffer]]
             [onyx.static.default-vals :refer [defaults arg-or-default]]
             [onyx.static.uuid :refer [random-uuid]]
             [onyx.extensions :as extensions]
@@ -17,8 +16,9 @@
 (defn close-read-seq-resources 
   [{:keys [seq/producer-ch seq/commit-ch seq/read-ch] :as event} lifecycle]
   (close! read-ch)
+  (while (poll! read-ch))
   (close! commit-ch)
-  (close! producer-ch))
+  (<!! producer-ch))
 
 (defn start-commit-loop! [commit-ch log task-id]
   (go-loop []
