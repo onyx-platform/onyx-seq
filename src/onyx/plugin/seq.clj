@@ -18,7 +18,8 @@
   (close! read-ch)
   (while (poll! read-ch))
   (close! commit-ch)
-  (<!! producer-ch))
+  (<!! producer-ch)
+  {})
 
 (defn start-commit-loop! [commit-ch log task-id]
   (go-loop []
