@@ -8,7 +8,7 @@
 
 (def BufferedFileReaderTaskMap
   (s/->Both [os/TaskMap
-             {:seq/checkpoint? s/Bool
+             {(s/optional-key :seq/checkpoint?) s/Bool
               :buffered-file-reader/filename s/Str
               UserTaskMapKey s/Any}]))
 
@@ -40,9 +40,7 @@
     :schema {:task-map BufferedFileReaderTaskMap
              :lifecycles [os/Lifecycle]}})
   ([task-name :- s/Keyword
-    checkpoint? :- s/Bool
     filename :- s/Str
     task-opts :- {s/Any s/Any}]
-   (buffered-file-reader task-name (merge {:seq/checkpoint? checkpoint?
-                                           :buffered-file-reader/filename filename}
+   (buffered-file-reader task-name (merge {:buffered-file-reader/filename filename}
                                           task-opts))))

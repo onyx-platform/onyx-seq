@@ -22,7 +22,7 @@
                   :flow-conditions []
                   :task-scheduler :onyx.task-scheduler/balanced}]
     (-> base-job
-        (add-task (seq/buffered-file-reader :in true "resources/lines.txt" batch-settings))
+        (add-task (seq/buffered-file-reader :in "resources/lines.txt" batch-settings))
         (add-task (ca/output :out batch-settings)))))
 
 (deftest seq-test
