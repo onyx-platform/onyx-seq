@@ -83,12 +83,6 @@ disable checkpointing via :seq/checkpoint?.
     :lifecycle/calls :onyx.plugin.seq/reader-calls}])
 ```
 
-#### Attributes
-
-| key                          | type      | description
-|------------------------------|-----------|------------
-|`:seq/elements-per-segment`   | `integer` | The number of elements to compress into a single segment
-
 #### Contributing
 
 Pull requests into the master branch are welcomed.
