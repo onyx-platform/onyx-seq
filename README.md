@@ -13,7 +13,7 @@ with datomic.api/datoms calls, slow lazy calculations, line-seq / buffered readi
 In your project file:
 
 ```clojure
-[org.onyxplatform/onyx-seq "0.9.4.0"]
+[org.onyxplatform/onyx-seq "0.9.4.1-SNAPSHOT"]
 ```
 
 ```clojure
@@ -82,12 +82,6 @@ disable checkpointing via :seq/checkpoint?.
    {:lifecycle/task :in
     :lifecycle/calls :onyx.plugin.seq/reader-calls}])
 ```
-
-#### Attributes
-
-| key                          | type      | description
-|------------------------------|-----------|------------
-|`:seq/elements-per-segment`   | `integer` | The number of elements to compress into a single segment
 
 #### Contributing
 
