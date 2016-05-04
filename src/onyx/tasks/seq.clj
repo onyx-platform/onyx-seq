@@ -3,14 +3,10 @@
             [onyx.schema :as os])
   (:import [java.io BufferedReader FileReader]))
 
-(def UserTaskMapKey
-  (os/build-allowed-key-ns :seq))
-
 (def BufferedFileReaderTaskMap
-  (s/->Both [os/TaskMap
-             {(s/optional-key :seq/checkpoint?) s/Bool
-              :buffered-file-reader/filename s/Str
-              UserTaskMapKey s/Any}]))
+  {(s/optional-key :seq/checkpoint?) s/Bool
+   :buffered-file-reader/filename s/Str
+   (os/restricted-ns :seq) s/Any})
 
 (defn inject-in-reader [event lifecycle]
   (let [rdr (FileReader. (:buffered-file-reader/filename (:onyx.core/task-map event)))]
@@ -37,8 +33,7 @@
                          :lifecycle/calls ::buffered-file-reader-lifecycles}
                         {:lifecycle/task task-name
                          :lifecycle/calls :onyx.plugin.seq/reader-calls}]}
-    :schema {:task-map BufferedFileReaderTaskMap
-             :lifecycles [os/Lifecycle]}})
+    :schema {:task-map BufferedFileReaderTaskMap}})
   ([task-name :- s/Keyword
     filename :- s/Str
     task-opts :- {s/Any s/Any}]
