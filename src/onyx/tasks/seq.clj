@@ -29,7 +29,7 @@
                              :onyx/max-peers 1
                              :seq/checkpoint? true}
                             opts)
-           :lifecycles [{:lifecycle/task :in
+           :lifecycles [{:lifecycle/task task-name
                          :lifecycle/calls ::buffered-file-reader-lifecycles}
                         {:lifecycle/task task-name
                          :lifecycle/calls :onyx.plugin.seq/reader-calls}]}
