@@ -21,10 +21,10 @@
   (<!! producer-ch)
   {})
 
-(defn start-commit-loop! [commit-ch log task-id]
+(defn start-commit-loop! [commit-ch log checkpoint-key]
   (go-loop []
            (when-let [content (<!! commit-ch)] 
-             (extensions/force-write-chunk log :chunk content task-id)
+             (extensions/force-write-chunk log :chunk content checkpoint-key)
              (recur))))
 
 (defn feedback-producer-exception! [e]
@@ -32,21 +32,22 @@
     (throw e)))
 
 (defn inject-read-seq-resources
-  [{:keys [onyx.core/task-map onyx.core/log onyx.core/task-id onyx.core/pipeline] :as event} lifecycle]
+  [{:keys [onyx.core/task-map onyx.core/log onyx.core/job-id onyx.core/task-id onyx.core/pipeline] :as event} lifecycle]
   (when-not (= 1 (:onyx/max-peers task-map))
     (throw (ex-info "read seq tasks must set :onyx/max-peers 1" task-map)))
 
   (when (:seq/elements-per-segment task-map)
     (throw (ex-info "Elements per segment has been deprecated. Please return a seq of maps and remove :seq/elements-per-segment from your task map." task-map)))
 
-  (let [_ (extensions/write-chunk log :chunk {:chunk-index -1 :status :incomplete} task-id)
-        content (extensions/read-chunk log :chunk task-id)]
+  (let [checkpoint-key (str job-id "#" task-id)
+        _ (extensions/write-chunk log :chunk {:chunk-index -1 :status :incomplete} checkpoint-key)
+        content (extensions/read-chunk log :chunk checkpoint-key)]
     (if (= :complete (:status content))
       (throw (Exception. "Restarted task and it was already complete. This is currently unhandled."))
       (let [ch (:read-ch pipeline)
             start-index (:chunk-index content)
             commit-loop-ch (when (false? (:seq/checkpoint? task-map)) 
-                             (start-commit-loop! (:commit-ch pipeline) log task-id))
+                             (start-commit-loop! (:commit-ch pipeline) log checkpoint-key))
             producer-ch (thread
                           (try
                             (loop [chunk-index (inc start-index)
