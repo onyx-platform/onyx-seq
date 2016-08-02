@@ -22,14 +22,14 @@
                   :flow-conditions []
                   :task-scheduler :onyx.task-scheduler/balanced}]
     (-> base-job
-        (add-task (seq/buffered-file-reader :in "resources/lines.txt" batch-settings))
+        (add-task (seq/buffered-file-reader :in "test-resources/lines.txt" batch-settings))
         (add-task (ca/output :out batch-settings)))))
 
 (deftest seq-test
   (let [{:keys [env-config peer-config]} (read-config
                                           (io/resource "config.edn")
                                           {:profile :test})
-        job (build-job "resources/lines.txt" 10 1000)
+        job (build-job "test-resources/lines.txt" 10 1000)
         {:keys [out]} (get-core-async-channels job)]
     (with-test-env [test-env [2 env-config peer-config]]
       (onyx.test-helper/validate-enough-peers! test-env job)

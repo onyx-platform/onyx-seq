@@ -62,7 +62,7 @@ disable checkpointing via :seq/checkpoint?.
 
 ```clojure
 (defn inject-in-reader [event lifecycle]
-  (let [rdr (FileReader. (:buffered-reader/filename lifecycle))] 
+  (let [rdr (FileReader. (:buffered-reader/filename lifecycle))]
     {:seq/rdr rdr
      :seq/seq (line-seq (BufferedReader. rdr))}))
 
@@ -77,7 +77,7 @@ disable checkpointing via :seq/checkpoint?.
 
 (def lifecycles
   [{:lifecycle/task :in
-    :buffered-reader/filename "resources/lines.txt"
+    :buffered-reader/filename "test-resources/lines.txt"
     :lifecycle/calls ::in-calls}
    {:lifecycle/task :in
     :lifecycle/calls :onyx.plugin.seq/reader-calls}])
