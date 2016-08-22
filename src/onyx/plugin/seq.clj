@@ -2,7 +2,7 @@
   (:require [onyx.peer.function :as function]
             [onyx.peer.pipeline-extensions :as p-ext]
             [clojure.core.async :refer [chan >! >!! <!! close! go thread timeout alts!! poll!  go-loop sliding-buffer]]
-            [onyx.static.default-vals :refer [defaults arg-or-default]]
+            [onyx.static.default-vals :refer [arg-or-default]]
             [onyx.static.uuid :refer [random-uuid]]
             [onyx.extensions :as extensions]
             [onyx.types :as t]
