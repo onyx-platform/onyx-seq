@@ -1,4 +1,4 @@
-(defproject org.onyxplatform/onyx-seq "0.9.10.0-SNAPSHOT"
+(defproject org.onyxplatform/onyx-seq "0.9.10.0-beta5"
   :description "Onyx plugin for seq"
   :url "https://github.com/onyx-platform/onyq-seq"
   :license {:name "Eclipse Public License"
@@ -13,7 +13,7 @@
                              :sign-releases false}}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  ^{:voom {:repo "git@github.com:onyx-platform/onyx.git" :branch "master"}}
-                 [org.onyxplatform/onyx "0.9.10-beta4"]
+                 [org.onyxplatform/onyx "0.9.10-beta5"]
                  [aero "0.2.0"]]
   :profiles {:dev {:plugins [[lein-set-version "0.4.1"]
                              [lein-update-dependency "0.1.2"]
